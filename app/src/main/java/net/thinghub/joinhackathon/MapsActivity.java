@@ -143,10 +143,9 @@ public class MapsActivity extends AppCompatActivity implements
             });
     }
     // Start Geofence creation process
-    private void startGeofence(LatLng point) {
+    private void startGeofence(Geofence geofence) {
         Log.i(TAG, "startGeofence()");
         if( userMarker != null ) {
-            Geofence geofence = createGeofence( point, GEOFENCE_RADIUS );
             GeofencingRequest geofenceRequest = createGeofenceRequest( geofence );
             addGeofence( geofenceRequest );
         } else {
@@ -221,17 +220,12 @@ public class MapsActivity extends AppCompatActivity implements
 
         // Get back the mutable Circle
         userMarker = mMap.addCircle(circleOptions);
-        userGeoFence = new SimpleGeofence(
-                "userGeofenceId",                // geofenceId.
-                point.latitude,
-                point.longitude,
-                120,
-                Geofence.NEVER_EXPIRE,
-                Geofence.GEOFENCE_TRANSITION_EXIT
-        ).toGeofence();
-
-        startGeofence(point);
-
+        userGeoFence = new Geofence.Builder().setRequestId("userGeofenceId")
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_EXIT)
+                .setCircularRegion(point.latitude, point.longitude, 120)
+                .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                .build();
+        startGeofence(userGeoFence);
         mMap.setOnCircleClickListener(new GoogleMap.OnCircleClickListener() {
             @Override
             public void onCircleClick(Circle circle) {
