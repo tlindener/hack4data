@@ -50,7 +50,8 @@ public class GeofenceTransitionService extends IntentService {
         // Retrieve GeofenceTrasition
         int geoFenceTransition = geofencingEvent.getGeofenceTransition();
         // Check if the transition type
-        if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT ) {
+        if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
+                geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT ) {
             // Get the geofence that were triggered
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
             // Create a detail message with Geofences received

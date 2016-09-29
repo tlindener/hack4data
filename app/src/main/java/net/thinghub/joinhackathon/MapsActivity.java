@@ -137,15 +137,16 @@ public class MapsActivity extends AppCompatActivity implements
             ).setResultCallback(new ResultCallback<Status>() {
                 @Override
                 public void onResult(@NonNull Status status) {
-                    Toast.makeText(MapsActivity.this, "Result of addGeofence: "+status.getStatus().toString(), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(MapsActivity.this, "Result of addGeofence: "+status.getStatus().toString(), Toast.LENGTH_SHORT).show();
                     Log.d(TAG,status.getStatus().toString());
                 }
             });
     }
     // Start Geofence creation process
-    private void startGeofence(Geofence geofence) {
+    private void startGeofence(LatLng point) {
         Log.i(TAG, "startGeofence()");
         if( userMarker != null ) {
+            Geofence geofence = createGeofence( point, GEOFENCE_RADIUS );
             GeofencingRequest geofenceRequest = createGeofenceRequest( geofence );
             addGeofence( geofenceRequest );
         } else {
@@ -210,7 +211,7 @@ public class MapsActivity extends AppCompatActivity implements
         //make sure you can only create a single geofence
         if(userGeoFence != null)
             return;
-// Instantiates a new CircleOptions object and defines the center and radius
+        // Instantiates a new CircleOptions object and defines the center and radius
         CircleOptions circleOptions = new CircleOptions()
                 .center(point)
                 .clickable(true)
@@ -218,28 +219,34 @@ public class MapsActivity extends AppCompatActivity implements
                 .strokeColor(Color.TRANSPARENT)
                 .radius(120); // In meters
 
-// Get back the mutable Circle
+        // Get back the mutable Circle
         userMarker = mMap.addCircle(circleOptions);
+        userGeoFence = new SimpleGeofence(
+                "userGeofenceId",                // geofenceId.
+                point.latitude,
+                point.longitude,
+                120,
+                Geofence.NEVER_EXPIRE,
+                Geofence.GEOFENCE_TRANSITION_EXIT
+        ).toGeofence();
 
-        userGeoFence = new Geofence.Builder().setRequestId("userGeofenceId")
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_EXIT)
-                .setCircularRegion(point.latitude, point.longitude, 120)
-                .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                .build();
-        startGeofence(userGeoFence);
+        startGeofence(point);
 
         mMap.setOnCircleClickListener(new GoogleMap.OnCircleClickListener() {
-
-
             @Override
             public void onCircleClick(Circle circle) {
-                Toast.makeText(MapsActivity.this, "CIrcle clicked Id=" + circle.getId() + " existing Id=" + userMarker.getId(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MapsActivity.this, "Circle clicked Id=" + circle.getId() + " existing Id=" + userMarker.getId(), Toast.LENGTH_SHORT).show();
                 if (circle.getId().equals(userMarker.getId())) // if marker source is clicked{
                 {
-                    LocationServices.GeofencingApi.removeGeofences(mApiClient,createGeofencePendingIntent());
+                    /*LocationServices.GeofencingApi.removeGeofences(mApiClient,createGeofencePendingIntent());
                     userGeoFence = null;
-                    userMarker.remove();
+                    userMarker.remove();*/
+                    //Toast.makeText(MapsActivity.this, "Color from " + userMarker.getFillColor() + " to " + Color.GREEN, Toast.LENGTH_SHORT).show();
+                    userMarker.setFillColor(Color.GREEN);
+                    Intent intent = new Intent(MapsActivity.this, TrackingActivity.class);
+                    startActivity(intent);
                 }
+
             }
 
         });
@@ -250,7 +257,7 @@ public class MapsActivity extends AppCompatActivity implements
 
     @Override
     public boolean onMyLocationButtonClick() {
-        Toast.makeText(this, "MyLocation button clicked", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "MyLocation button clicked", Toast.LENGTH_SHORT).show();
         // Return false so that we don't consume the event and the default behavior still occurs
         // (the camera animates to the user's current position).
         return false;
