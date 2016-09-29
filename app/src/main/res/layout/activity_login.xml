@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
@@ -41,38 +40,6 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true" />
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textPersonName"
-        android:text="Name"
-        android:ems="10"
-        android:layout_marginBottom="108dp"
-        android:id="@+id/editText5"
-        android:layout_above="@+id/checkBox"
-        android:layout_alignParentStart="true" />
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="numberPassword"
-        android:ems="10"
-        android:id="@+id/editText8"
-        android:text="1234"
-        android:layout_above="@+id/checkBox"
-        android:layout_alignParentStart="true" />
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="phone"
-        android:ems="10"
-        android:id="@+id/editText7"
-        android:text="Phone Number"
-        android:layout_above="@+id/editText8"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="11dp" />
-
     <Button
         android:text="ok"
         android:layout_width="wrap_content"
@@ -80,5 +47,69 @@
         android:id="@+id/submitButton"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true" />
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/input_layout_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="120dp">
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:ems="10"
+            android:id="@+id/editText5"
+            android:hint="Your child's Name"
+            android:layout_alignTop="@+id/input_layout_phone"
+            android:layout_toEndOf="@+id/input_layout_name"
+            android:selectAllOnFocus="false" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/input_layout_phone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:layout_below="@+id/input_layout_name"
+        android:layout_alignParentStart="true" >
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:ems="10"
+            android:digits="0123456789+"
+            android:id="@+id/editText7"
+            android:hint="Emergency Number"
+            style="@style/Widget.AppCompat.Light.AutoCompleteTextView"
+            android:layout_above="@+id/editText8"
+            android:layout_toEndOf="@+id/checkBox2"
+            android:layout_marginBottom="0dp" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/input_layout_pin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/input_layout_phone"
+        android:layout_alignParentStart="true">
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="numberPassword"
+            android:ems="10"
+            android:id="@+id/editText8"
+            android:hint="Pin Code (4 digits)"
+            android:layout_above="@+id/checkBox"
+            android:layout_alignParentStart="true" />
+
+    </android.support.design.widget.TextInputLayout>
+
 
 </RelativeLayout>

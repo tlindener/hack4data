@@ -29,10 +29,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-
-import java.util.ArrayList;
-import java.util.List;
-
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static net.thinghub.joinhackathon.Constants.CONNECTION_FAILURE_RESOLUTION_REQUEST;
 import static net.thinghub.joinhackathon.Constants.GEOFENCE_EXPIRATION_TIME;
@@ -236,6 +232,10 @@ public class MapsActivity extends AppCompatActivity implements
                     userGeoFence = null;
                     userMarker.remove();*/
                     //Toast.makeText(MapsActivity.this, "Color from " + userMarker.getFillColor() + " to " + Color.GREEN, Toast.LENGTH_SHORT).show();
+
+                    // GET THE BAR
+
+
                     userMarker.setFillColor(Color.GREEN);
                     Intent intent = new Intent(MapsActivity.this, TrackingActivity.class);
                     startActivity(intent);

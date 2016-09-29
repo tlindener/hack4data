@@ -25,6 +25,7 @@ public final class Constants {
 
     private Constants() {
     }
+    public static final String PREFS_NAME = "config";
 
     public static final String TAG = "ExampleGeofencingApp";
 
