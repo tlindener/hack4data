@@ -7,4 +7,8 @@
     <string name="entering_geofence">Entering geofence</string>
     <string name="exiting_geofence">Exiting geo fence</string>
     <string name="start_geofence_service">Star geofence service</string>
+
+    <string name="title_activity_logo">Logo</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>

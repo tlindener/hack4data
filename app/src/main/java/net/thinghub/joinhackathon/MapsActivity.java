@@ -27,7 +27,13 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.SeekBar;
 import android.widget.Toast;
+
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static net.thinghub.joinhackathon.Constants.CONNECTION_FAILURE_RESOLUTION_REQUEST;
@@ -61,6 +67,12 @@ public class MapsActivity extends AppCompatActivity implements
     // Stores the PendingIntent used to request geofence monitoring.
     private PendingIntent mGeofenceRequestIntent;
     private GoogleApiClient mApiClient;
+
+    // SeekBar
+    SeekBar radiusBar;
+    private int defaultRadius = 120; // In meters
+    int progress = defaultRadius;
+
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
@@ -166,6 +178,7 @@ public class MapsActivity extends AppCompatActivity implements
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        radiusBar = (SeekBar)findViewById(R.id.radiusBar);
 
 
     }
@@ -202,26 +215,49 @@ public class MapsActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onMapLongClick(LatLng point) {
+    public void onMapLongClick(final LatLng point) {
         //make sure you can only create a single geofence
         if(userGeoFence != null)
             return;
         // Instantiates a new CircleOptions object and defines the center and radius
-        CircleOptions circleOptions = new CircleOptions()
+        final CircleOptions circleOptions = new CircleOptions()
                 .center(point)
                 .clickable(true)
-                .fillColor(0x40ff0000)
-                .strokeColor(Color.TRANSPARENT)
-                .radius(120); // In meters
+                .fillColor(0x40ff4081) // 0x means hex, pos 2 and 3 mean transparency
+                .strokeColor(0x80ff4081)
+                .strokeWidth(4.5f)
+                .radius(defaultRadius); // In meters
 
         // Get back the mutable Circle
         userMarker = mMap.addCircle(circleOptions);
-        userGeoFence = new Geofence.Builder().setRequestId("userGeofenceId")
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_EXIT)
-                .setCircularRegion(point.latitude, point.longitude, 120)
-                .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                .build();
-        startGeofence(userGeoFence);
+
+        // Make the SeekBar visible
+        radiusBar.setMax(1000);
+        radiusBar.setProgress(defaultRadius);
+        radiusBar.setVisibility(View.VISIBLE);
+
+
+
+        radiusBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                userMarker.setRadius(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                userMarker.setFillColor(Color.TRANSPARENT);
+                //userMarker.setStrokeColor(0x80ff4081);
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                userMarker.setFillColor(0x40ff4081);
+                //userMarker.setStrokeColor(Color.TRANSPARENT);
+            }
+        });
+
+
         mMap.setOnCircleClickListener(new GoogleMap.OnCircleClickListener() {
             @Override
             public void onCircleClick(Circle circle) {
@@ -233,10 +269,14 @@ public class MapsActivity extends AppCompatActivity implements
                     userMarker.remove();*/
                     //Toast.makeText(MapsActivity.this, "Color from " + userMarker.getFillColor() + " to " + Color.GREEN, Toast.LENGTH_SHORT).show();
 
-                    // GET THE BAR
+                    userGeoFence = new Geofence.Builder().setRequestId("userGeofenceId")
+                            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_EXIT)
+                            .setCircularRegion(point.latitude, point.longitude, progress)
+                            .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                            .build();
+                    startGeofence(userGeoFence);
 
-
-                    userMarker.setFillColor(Color.GREEN);
+                    userMarker.setFillColor(0x40ff669a);
                     Intent intent = new Intent(MapsActivity.this, TrackingActivity.class);
                     startActivity(intent);
                 }
@@ -268,7 +308,7 @@ public class MapsActivity extends AppCompatActivity implements
         if (PermissionUtils.isPermissionGranted(permissions, grantResults,
                 Manifest.permission.ACCESS_FINE_LOCATION)) {
             // Enable the my location layer if the permission has been granted.
-            enableMyLocation();
+                    enableMyLocation();
         } else {
             // Display the missing permission error dialog when the fragments resume.
             mPermissionDenied = true;

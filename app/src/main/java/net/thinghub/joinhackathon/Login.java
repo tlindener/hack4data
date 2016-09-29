@@ -39,7 +39,7 @@ public class Login extends AppCompatActivity {
                 } else if (pin.length() != 4) {
                     Toast.makeText(Login.this, "The pin must have 4 numbers", Toast.LENGTH_SHORT).show();
                 }
-                else if (!pattern.matcher(phone).matches()) {
+                else if ((!phone.contains("!") && phone.length()==9) || !pattern.matcher(phone).matches()) {
                     Toast.makeText(Login.this, "The phone number must be a real number", Toast.LENGTH_SHORT).show();
                 } else {
                     storeData(name, phone, pin);
@@ -55,10 +55,5 @@ public class Login extends AppCompatActivity {
         editor.putString("phone", phone);
         editor.putString("pin", pin);
         editor.commit();
-    }
-
-    private String[] loadDa.gitignorea () {
-        SharedPreferences prefs = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE);
-        return new String[] {prefs.getString("name", null), prefs.getString("phone", null), prefs.getString("pin", null)};
     }
 }

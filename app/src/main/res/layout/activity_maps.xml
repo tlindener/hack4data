@@ -5,4 +5,15 @@
     android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="net.thinghub.joinhackathon.MapsActivity" />
+    tools:context="net.thinghub.joinhackathon.MapsActivity" >
+
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="45dp"
+        android:id="@+id/radiusBar"
+        android:layout_gravity="bottom"
+        android:visibility="gone"/>
+
+</fragment>
