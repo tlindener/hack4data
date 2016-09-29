@@ -31,7 +31,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".Login"
+            android:name=".Logo"
             android:label="@string/title_activity_maps">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -47,11 +47,8 @@
         <activity android:name=".TrackingActivity" />
         <activity android:name=".MapsActivity" />
         <activity android:name=".Timer" />
-        <activity
-            android:name=".Logo"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_logo"
-            android:theme="@style/FullscreenTheme" />
+        <activity android:name=".Login" />
+        <activity android:name=".Pin"/>
     </application>
 
 </manifest>

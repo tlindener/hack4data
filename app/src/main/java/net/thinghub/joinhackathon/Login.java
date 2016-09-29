@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Toast;
 
 import java.util.regex.Matcher;
@@ -16,16 +17,17 @@ public class Login extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
         final String PHONE_REGEX = "^\\+?\\d{1,3}?[- .]?\\(?(?:\\d{2,3})\\)?[- .]?\\d\\d\\d[- .]?\\d\\d\\d\\d$";
         final Pattern pattern = Pattern.compile(PHONE_REGEX);
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
         Button bt = (Button)findViewById(R.id.submitButton);
 
         final TextInputLayout text_name = (TextInputLayout)findViewById(R.id.input_layout_name);
         final TextInputLayout text_phone = (TextInputLayout)findViewById(R.id.input_layout_phone);
         final TextInputLayout text_pin = (TextInputLayout)findViewById(R.id.input_layout_pin);
+        final CheckBox checkBox = (CheckBox)findViewById(R.id.dontUsePin);
 
         bt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -33,10 +35,11 @@ public class Login extends AppCompatActivity {
                 String name = text_name.getEditText().getText().toString();
                 String phone = text_phone.getEditText().getText().toString();
                 String pin = text_pin.getEditText().getText().toString();
+                boolean dontUsePin = checkBox.isChecked();
 
                 if (name.isEmpty()) {
                     Toast.makeText(Login.this, "The name cannot be empty", Toast.LENGTH_SHORT).show();
-                } else if (pin.length() != 4) {
+                } else if (pin.length() != 4 && !dontUsePin) {
                     Toast.makeText(Login.this, "The pin must have 4 numbers", Toast.LENGTH_SHORT).show();
                 }
                 else if ((!phone.contains("!") && phone.length()==9) || !pattern.matcher(phone).matches()) {
@@ -53,7 +56,11 @@ public class Login extends AppCompatActivity {
         SharedPreferences.Editor editor = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE).edit();
         editor.putString("name", name);
         editor.putString("phone", phone);
-        editor.putString("pin", pin);
+        if (pin.length() == 4) {
+            editor.putString("pin", pin);
+        } else {
+            editor.putString("pin", "00000");
+        }
         editor.commit();
     }
 }

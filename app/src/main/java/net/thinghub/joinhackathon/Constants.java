@@ -50,7 +50,6 @@ public final class Constants {
     public static final double YERBA_BUENA_LONGITUDE = -122.402671;
     public static final float YERBA_BUENA_RADIUS_METERS = 72.0f;
 
-
     // The constants below are less interesting than those above.
 
     // Path for the DataItem containing the last geofence id entered.
