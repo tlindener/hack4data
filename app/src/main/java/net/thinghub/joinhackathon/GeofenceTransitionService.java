@@ -8,6 +8,7 @@ import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -41,6 +42,7 @@ public class GeofenceTransitionService extends IntentService {
         // Handling errors
         if ( geofencingEvent.hasError() ) {
             String errorMsg = getErrorString(geofencingEvent.getErrorCode() );
+            Toast.makeText(this, "Error in onHandleIntent", Toast.LENGTH_SHORT).show();
             Log.e( TAG, errorMsg );
             return;
         }
@@ -82,8 +84,19 @@ public class GeofenceTransitionService extends IntentService {
         //SmsManager smsManager = SmsManager.getDefault();
         //smsManager.sendTextMessage("", null, "Marta left the geofence!", null, null);
         //
+        NotificationManager notificationManager = (NotificationManager)
+                getSystemService(NOTIFICATION_SERVICE);
 
-        Toast.makeText(getApplicationContext(), "Geofence message " +msg, Toast.LENGTH_LONG).show();
+        android.support.v4.app.NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setContentTitle("GCM Notification")
+                        .setStyle(new NotificationCompat.BigTextStyle()
+                                .bigText(msg))
+                        .setContentText(msg)
+                        .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark_focused);
+        notificationManager.notify(1, mBuilder.build());
+
+      //  Toast.makeText(this, "Geofence message " +msg, Toast.LENGTH_LONG).show();
     }
 
     // Create a notification

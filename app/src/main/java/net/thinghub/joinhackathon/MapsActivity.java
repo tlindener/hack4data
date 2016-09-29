@@ -35,6 +35,7 @@ import java.util.List;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static net.thinghub.joinhackathon.Constants.CONNECTION_FAILURE_RESOLUTION_REQUEST;
+import static net.thinghub.joinhackathon.Constants.GEOFENCE_EXPIRATION_TIME;
 
 public class MapsActivity extends AppCompatActivity implements
         GoogleMap.OnMyLocationButtonClickListener, GoogleApiClient.OnConnectionFailedListener,
@@ -57,12 +58,8 @@ public class MapsActivity extends AppCompatActivity implements
     private GoogleMap mMap;
     private Circle userMarker;
 
-    // Internal List of Geofence objects. In a real app, these might be provided by an API based on
-    // locations within the user's proximity.
-    List<Geofence> mGeofenceList;
-
     // These will store hard-coded geofences in this sample app.
-    private SimpleGeofence userGeoFence;
+    private Geofence userGeoFence;
 
     private LocationServices mLocationService;
     // Stores the PendingIntent used to request geofence monitoring.
@@ -95,7 +92,7 @@ public class MapsActivity extends AppCompatActivity implements
         return new Geofence.Builder()
                 .setRequestId(GEOFENCE_REQ_ID)
                 .setCircularRegion( latLng.latitude, latLng.longitude, radius)
-                .setExpirationDuration( GEO_DURATION )
+                .setExpirationDuration(GEOFENCE_EXPIRATION_TIME)
                 .setTransitionTypes( Geofence.GEOFENCE_TRANSITION_ENTER
                         | Geofence.GEOFENCE_TRANSITION_EXIT )
                 .build();
@@ -140,6 +137,7 @@ public class MapsActivity extends AppCompatActivity implements
             ).setResultCallback(new ResultCallback<Status>() {
                 @Override
                 public void onResult(@NonNull Status status) {
+                    Toast.makeText(MapsActivity.this, "Result of addGeofence: "+status.getStatus().toString(), Toast.LENGTH_SHORT).show();
                     Log.d(TAG,status.getStatus().toString());
                 }
             });
@@ -190,8 +188,6 @@ public class MapsActivity extends AppCompatActivity implements
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
-        // Instantiate the current List of geofences.
-        mGeofenceList = new ArrayList<Geofence>();
         mApiClient.connect();
     }
 
@@ -212,7 +208,9 @@ public class MapsActivity extends AppCompatActivity implements
 
     @Override
     public void onMapLongClick(LatLng point) {
-
+        //make sure you can only create a single geofence
+        if(userGeoFence != null)
+            return;
 // Instantiates a new CircleOptions object and defines the center and radius
         CircleOptions circleOptions = new CircleOptions()
                 .center(point)
@@ -230,9 +228,8 @@ public class MapsActivity extends AppCompatActivity implements
                 120,
                 Geofence.NEVER_EXPIRE,
                 Geofence.GEOFENCE_TRANSITION_EXIT
-        );
+        ).toGeofence();
 
-        mGeofenceList.add(userGeoFence.toGeofence());
         startGeofence(point);
 
         mMap.setOnCircleClickListener(new GoogleMap.OnCircleClickListener() {
@@ -244,7 +241,7 @@ public class MapsActivity extends AppCompatActivity implements
                 if (circle.getId().equals(userMarker.getId())) // if marker source is clicked{
                 {
                     LocationServices.GeofencingApi.removeGeofences(mApiClient,createGeofencePendingIntent());
-                    mGeofenceList.remove(userGeoFence);
+                    userGeoFence = null;
                     userMarker.remove();
                 }
             }
