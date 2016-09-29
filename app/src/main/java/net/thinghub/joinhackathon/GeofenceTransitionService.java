@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
@@ -78,16 +79,12 @@ public class GeofenceTransitionService extends IntentService {
     private void sendNotification( String msg ) {
         Log.i(TAG, "sendNotification: " + msg );
 
-//        // Intent to start the main Activity
-//        Intent notificationIntent = MapsActivity.makeNotificationIntent(
-//                getApplicationContext(), msg
-//        );
+        // Intent to start the main Activity
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(MapsActivity.class);
-        //stackBuilder.addNextIntent(notificationIntent);
         PendingIntent notificationPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-
+        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
         // Creating and sending Notification
         NotificationManager notificatioMng =
                 (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );

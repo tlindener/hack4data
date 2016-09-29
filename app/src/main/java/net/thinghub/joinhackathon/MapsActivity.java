@@ -3,6 +3,8 @@ package net.thinghub.joinhackathon;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
@@ -122,6 +124,7 @@ public class MapsActivity extends AppCompatActivity implements
             return geoFencePendingIntent;
 
         Intent intent = new Intent( this, GeofenceTransitionService.class);
+        Log.d("TAG", "createGeofencePendingIntent getService");
         return PendingIntent.getService(
                 this, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT );
     }
@@ -134,7 +137,12 @@ public class MapsActivity extends AppCompatActivity implements
                     mApiClient,
                     request,
                     createGeofencePendingIntent()
-            );
+            ).setResultCallback(new ResultCallback<Status>() {
+                @Override
+                public void onResult(@NonNull Status status) {
+                    Log.d(TAG,status.getStatus().toString());
+                }
+            });
     }
     // Start Geofence creation process
     private void startGeofence(LatLng point) {
@@ -235,7 +243,7 @@ public class MapsActivity extends AppCompatActivity implements
                 Toast.makeText(MapsActivity.this, "CIrcle clicked Id=" + circle.getId() + " existing Id=" + userMarker.getId(), Toast.LENGTH_SHORT).show();
                 if (circle.getId().equals(userMarker.getId())) // if marker source is clicked{
                 {
-                    LocationServices.GeofencingApi.removeGeofences(mApiClient,mGeofenceRequestIntent);
+                    LocationServices.GeofencingApi.removeGeofences(mApiClient,createGeofencePendingIntent());
                     mGeofenceList.remove(userGeoFence);
                     userMarker.remove();
                 }
