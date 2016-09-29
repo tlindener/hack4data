@@ -78,19 +78,12 @@ public class GeofenceTransitionService extends IntentService {
     // Send a notification
     private void sendNotification( String msg ) {
         Log.i(TAG, "sendNotification: " + msg );
-
         // Intent to start the main Activity
+        //SmsManager smsManager = SmsManager.getDefault();
+        //smsManager.sendTextMessage("", null, "Marta left the geofence!", null, null);
+        //
 
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(MapsActivity.class);
-        PendingIntent notificationPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
-        // Creating and sending Notification
-        NotificationManager notificatioMng =
-                (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
-        notificatioMng.notify(
-                GEOFENCE_NOTIFICATION_ID,
-                createNotification(msg, notificationPendingIntent));
+        Toast.makeText(getApplicationContext(), "Geofence message " +msg, Toast.LENGTH_LONG).show();
     }
 
     // Create a notification
