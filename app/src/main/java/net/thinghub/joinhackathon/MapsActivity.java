@@ -71,7 +71,7 @@ public class MapsActivity extends AppCompatActivity implements
     // SeekBar
     SeekBar radiusBar;
     private int defaultRadius = 120; // In meters
-    int progress = defaultRadius;
+    int progressT = defaultRadius;
 
 
     @Override
@@ -242,6 +242,7 @@ public class MapsActivity extends AppCompatActivity implements
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 userMarker.setRadius(progress);
+                progressT = progress;
             }
 
             @Override
@@ -268,17 +269,17 @@ public class MapsActivity extends AppCompatActivity implements
                     userGeoFence = null;
                     userMarker.remove();*/
                     //Toast.makeText(MapsActivity.this, "Color from " + userMarker.getFillColor() + " to " + Color.GREEN, Toast.LENGTH_SHORT).show();
-
+                    Toast.makeText(MapsActivity.this, "progress " + progressT, Toast.LENGTH_SHORT).show();
                     userGeoFence = new Geofence.Builder().setRequestId("userGeofenceId")
                             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_EXIT)
-                            .setCircularRegion(point.latitude, point.longitude, progress)
+                            .setCircularRegion(point.latitude, point.longitude, progressT)
                             .setExpirationDuration(Geofence.NEVER_EXPIRE)
                             .build();
                     startGeofence(userGeoFence);
 
                     userMarker.setFillColor(0x40ff669a);
-                    Intent intent = new Intent(MapsActivity.this, TrackingActivity.class);
-                    startActivity(intent);
+                    //Intent intent = new Intent(MapsActivity.this, TrackingActivity.class);
+                    //startActivity(intent);
                 }
 
             }

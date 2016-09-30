@@ -41,10 +41,9 @@ public class Login extends AppCompatActivity {
                     Toast.makeText(Login.this, "The name cannot be empty", Toast.LENGTH_SHORT).show();
                 } else if (pin.length() != 4 && !dontUsePin) {
                     Toast.makeText(Login.this, "The pin must have 4 numbers", Toast.LENGTH_SHORT).show();
-                }
-                else if ((!phone.contains("!") && phone.length()==9) || !pattern.matcher(phone).matches()) {
+                } /*else if ((!phone.contains("!") && phone.length()==9) || !pattern.matcher(phone).matches()) {
                     Toast.makeText(Login.this, "The phone number must be a real number", Toast.LENGTH_SHORT).show();
-                } else {
+                }*/ else {
                     storeData(name, phone, pin);
                     Intent intent = new Intent(Login.this, MapsActivity.class);
                     startActivity(intent);

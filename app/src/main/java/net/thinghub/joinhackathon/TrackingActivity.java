@@ -34,7 +34,7 @@ public class TrackingActivity extends AppCompatActivity implements View.OnClickL
         btSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(TrackingActivity.this, Timer.class);
+                Intent intent = new Intent(TrackingActivity.this, MapsActivity.class);
                 startActivity(intent);
             }
         });
