@@ -35,8 +35,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import ai.kitt.snowboy.SnowboyDetect;
@@ -229,7 +231,11 @@ public class MapsActivity extends AppCompatActivity implements
     }
 
     public void toastMessage(String message) {
-        Toast.makeText(MapsActivity.this, message, Toast.LENGTH_SHORT).show();
+        Toast toast = Toast.makeText(MapsActivity.this, message, Toast.LENGTH_SHORT);
+        ViewGroup group = (ViewGroup) toast.getView();
+        TextView messageTextView = (TextView) group.getChildAt(0);
+        messageTextView.setTextSize(30);
+        toast.show();
     }
 
     @Override
@@ -420,7 +426,7 @@ public class MapsActivity extends AppCompatActivity implements
         mMap.setOnCircleClickListener(new GoogleMap.OnCircleClickListener() {
             @Override
             public void onCircleClick(Circle circle) {
-                Toast.makeText(MapsActivity.this, "Circle clicked Id=" + circle.getId() + " existing Id=" + userMarker.getId(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MapsActivity.this, "Circle clicked Id=" + circle.getId() + " existing Id=" + userMarker.getId(), Toast.LENGTH_SHORT).show();
                 if (circle.getId().equals(userMarker.getId())) // if marker source is clicked{
                 {
                     /*LocationServices.GeofencingApi.removeGeofences(mApiClient,createGeofencePendingIntent());
