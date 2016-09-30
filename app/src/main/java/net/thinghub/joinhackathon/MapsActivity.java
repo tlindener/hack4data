@@ -433,7 +433,8 @@ public class MapsActivity extends AppCompatActivity implements
                     userGeoFence = null;
                     userMarker.remove();*/
                     //Toast.makeText(MapsActivity.this, "Color from " + userMarker.getFillColor() + " to " + Color.GREEN, Toast.LENGTH_SHORT).show();
-                    Toast.makeText(MapsActivity.this, "progress " + progressT, Toast.LENGTH_SHORT).show();
+                    /*Toast.makeText(MapsActivity.this, "Area " +
+                            (Math.PI * Math.pow(progressT, 2)), Toast.LENGTH_SHORT).show();*/
                     userGeoFence = new Geofence.Builder().setRequestId("userGeofenceId")
                             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_EXIT)
                             .setCircularRegion(point.latitude, point.longitude, progressT)
