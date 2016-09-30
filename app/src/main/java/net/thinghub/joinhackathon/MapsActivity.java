@@ -32,8 +32,6 @@ import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -41,10 +39,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.SeekBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.net.URLEncoder;
@@ -111,15 +107,6 @@ public class MapsActivity extends AppCompatActivity implements
     private boolean isExit = false;
 
     private SnowboyDetect snowboyDetector;
-    Message msg = new Message();
-    Handler handler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            toastMessage("Help! Ayuda!");
-
-            return false;
-        }
-    });
 
     protected void startRecordingThread() {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -204,8 +191,7 @@ public class MapsActivity extends AppCompatActivity implements
                     os.flush();*/
                 int result = snowboyDetector.RunDetection(data, data.length);
                 if (result == 1) {
-                    handler.sendMessage(msg);
-                    msg = new Message();
+                    sendNotificationBySMS();
                 }
                 Log.i(TAGR, " ----> result = "+result);
             }
@@ -239,7 +225,7 @@ public class MapsActivity extends AppCompatActivity implements
         }
     }
 
-    public void toastMessage(String message) {
+    public void sendNotificationBySMS() {
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         // Define the criteria how to select the locatioin provider -> use
         // default
@@ -260,11 +246,7 @@ public class MapsActivity extends AppCompatActivity implements
         } catch (Exception e) {
             Toast.makeText(this, "It crashed " + e, Toast.LENGTH_LONG).show();
         }
-        Toast toast = Toast.makeText(MapsActivity.this, message, Toast.LENGTH_SHORT);
-        ViewGroup group = (ViewGroup) toast.getView();
-        TextView messageTextView = (TextView) group.getChildAt(0);
-        messageTextView.setTextSize(30);
-        toast.show();
+
     }
     private String[] loadData() {
         SharedPreferences prefs = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE);
