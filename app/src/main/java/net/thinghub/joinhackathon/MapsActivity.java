@@ -21,19 +21,25 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
-
-import java.util.ArrayList;
-import java.util.List;
+import ai.kitt.snowboy.SnowboyDetect;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static net.thinghub.joinhackathon.Constants.CONNECTION_FAILURE_RESOLUTION_REQUEST;
@@ -73,6 +79,158 @@ public class MapsActivity extends AppCompatActivity implements
     private int defaultRadius = 120; // In meters
     int progressT = defaultRadius;
 
+    private static final String TAGR = "King";
+
+    private static final String[] neededPermissions = new String[]{
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+    private static final int REQUEST_CODE_ASK_PERMISSIONS = 1;
+
+    private static final String AUDIO_RECORDER_TEMP_FILE = "record_temp.raw";
+
+    public static final int RECORDER_BPP = 16;
+    public static int RECORDER_SAMPLERATE = 16000;
+    public static int RECORDER_CHANNELS = 1;
+    public static int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+
+    private AudioRecord recorder = null;
+    private int bufferSize = 0;
+    private Thread recordingThread = null;
+    private boolean isRecording = false;
+    private boolean isExit = false;
+
+    private SnowboyDetect snowboyDetector;
+    Message msg = new Message();
+    Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            toastMessage("Help! Ayuda!");
+            return false;
+        }
+    });
+
+    protected void startRecordingThread() {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int i = 0;
+            for (; i < neededPermissions.length; i++) {
+                if (checkSelfPermission(neededPermissions[i]) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(neededPermissions, REQUEST_CODE_ASK_PERMISSIONS);
+                    break;
+                }
+            }
+            if (i >= neededPermissions.length) {
+                initial();
+            }
+        } else {
+            initial();
+        }
+    }
+
+
+
+    private void initial() {
+        // Assume you put the model related files under /sdcard/snowboy/
+        snowboyDetector = new SnowboyDetect(Environment.getExternalStorageDirectory().getAbsolutePath()+"/models/common.res",
+                /*"/storage/emulated/legacy/snowboy.umdl");*/
+                Environment.getExternalStorageDirectory().getAbsolutePath()+"/models/Ayuda.pmdl");
+        snowboyDetector.SetSensitivity("0.5");         // Sensitivity for each hotword
+        snowboyDetector.SetAudioGain(2.0f);              // Audio gain for detection
+        Log.i(TAGR, "NumHotwords = "+snowboyDetector.NumHotwords()+", BitsPerSample = "+snowboyDetector.BitsPerSample()+", NumChannels = "+snowboyDetector.NumChannels()+", SampleRate = "+snowboyDetector.SampleRate());
+
+        /*bufferSize = AudioRecord.getMinBufferSize
+                (sampleRate, channels, audioEncoding) * 3;*/
+        bufferSize = snowboyDetector.NumChannels() * snowboyDetector.SampleRate() * 1;
+        recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
+                RECORDER_SAMPLERATE,
+                RECORDER_CHANNELS,
+                RECORDER_AUDIO_ENCODING,
+                bufferSize);
+
+        startRecord();
+    }
+
+    public void startRecord() {
+        if (isRecording){
+            return;
+        }
+
+        int i = recorder.getState();
+        if (i == AudioRecord.STATE_INITIALIZED) {
+            recorder.startRecording();
+        }
+
+        isRecording = true;
+
+        recordingThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                writeAudioDataToFile();
+            }
+        }, "AudioRecorder Thread");
+        recordingThread.start();
+    }
+
+    private void writeAudioDataToFile() {
+        /*FileOutputStream os = null;
+        try {
+            os = new FileOutputStream(filename);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }*/
+
+        short data[] = new short[bufferSize/2];
+
+        int read = 0;
+        //try {
+        while (isRecording) {
+            read = recorder.read(data, 0, data.length);
+            Log.i(TAGR, "read length = " + read);
+            if (AudioRecord.ERROR_INVALID_OPERATION != read) {
+                    /*os.write(data, 0, read);
+                    os.flush();*/
+                int result = snowboyDetector.RunDetection(data, data.length);
+                if (result == 1) {
+                    handler.sendMessage(msg);
+                    msg = new Message();
+                }
+                Log.i(TAGR, " ----> result = "+result);
+            }
+            //Thread.sleep(30);
+        }/*
+        }catch (InterruptedException e) {
+            e.printStackTrace();
+        }/* finally {
+            try {
+                os.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }*/
+
+
+        if (recorder != null) {
+            recorder.stop();
+            recorder = null;
+        }
+        Log.i(TAGR, "detectSpeaking finished.");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        isRecording = false;
+        if (recorder != null) {
+            recorder.stop();
+            recorder = null;
+        }
+    }
+
+    public void toastMessage(String message) {
+        Toast.makeText(MapsActivity.this, message, Toast.LENGTH_SHORT).show();
+    }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
@@ -278,6 +436,10 @@ public class MapsActivity extends AppCompatActivity implements
                     startGeofence(userGeoFence);
 
                     userMarker.setFillColor(0x40ff669a);
+
+                    radiusBar.setVisibility(View.GONE);
+
+                    startRecordingThread();
                     //Intent intent = new Intent(MapsActivity.this, TrackingActivity.class);
                     //startActivity(intent);
                 }
@@ -302,10 +464,11 @@ public class MapsActivity extends AppCompatActivity implements
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
         if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
             return;
         }
-
         if (PermissionUtils.isPermissionGranted(permissions, grantResults,
                 Manifest.permission.ACCESS_FINE_LOCATION)) {
             // Enable the my location layer if the permission has been granted.
@@ -313,6 +476,16 @@ public class MapsActivity extends AppCompatActivity implements
         } else {
             // Display the missing permission error dialog when the fragments resume.
             mPermissionDenied = true;
+        }
+        if (requestCode == REQUEST_CODE_ASK_PERMISSIONS) {
+            for (int i = 0; i < grantResults.length; i++) {
+                if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "You should agree all of the permissions, force exit! please retry", Toast.LENGTH_LONG).show();
+                    finish();
+                    return;
+                }
+            }
+            initial();
         }
     }
 
