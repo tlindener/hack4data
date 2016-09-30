@@ -79,14 +79,14 @@ public class Timer extends AppCompatActivity {
         // Assume you put the model related files under /sdcard/snowboy/
         snowboyDetector = new SnowboyDetect(Environment.getExternalStorageDirectory().getAbsolutePath()+"/models/common.res",
                 /*"/storage/emulated/legacy/snowboy.umdl");*/
-                Environment.getExternalStorageDirectory().getAbsolutePath()+"/models/HelpChild.pmdl");
-        snowboyDetector.SetSensitivity("0.6");         // Sensitivity for each hotword
+                Environment.getExternalStorageDirectory().getAbsolutePath()+"/models/Ayuda.pmdl");
+        snowboyDetector.SetSensitivity("0.5");         // Sensitivity for each hotword
         snowboyDetector.SetAudioGain(2.0f);              // Audio gain for detection
         Log.i(TAG, "NumHotwords = "+snowboyDetector.NumHotwords()+", BitsPerSample = "+snowboyDetector.BitsPerSample()+", NumChannels = "+snowboyDetector.NumChannels()+", SampleRate = "+snowboyDetector.SampleRate());
 
         /*bufferSize = AudioRecord.getMinBufferSize
                 (sampleRate, channels, audioEncoding) * 3;*/
-        bufferSize = snowboyDetector.NumChannels() * snowboyDetector.SampleRate() * 5;
+        bufferSize = snowboyDetector.NumChannels() * snowboyDetector.SampleRate() * 1;
         recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
                 RECORDER_SAMPLERATE,
                 RECORDER_CHANNELS,
@@ -129,7 +129,7 @@ public class Timer extends AppCompatActivity {
         short data[] = new short[bufferSize/2];
 
         int read = 0;
-        try {
+        //try {
             while (isRecording) {
                 read = recorder.read(data, 0, data.length);
                 Log.i(TAG, "read length = " + read);
@@ -139,8 +139,8 @@ public class Timer extends AppCompatActivity {
                     int result = snowboyDetector.RunDetection(data, data.length);
                     Log.i(TAG, " ----> result = "+result);
                 }
-                Thread.sleep(30);
-            }
+                //Thread.sleep(30);
+            }/*
         }catch (InterruptedException e) {
             e.printStackTrace();
         }/* finally {
@@ -150,6 +150,7 @@ public class Timer extends AppCompatActivity {
                 e.printStackTrace();
             }
         }*/
+
 
         if (recorder != null) {
             recorder.stop();
