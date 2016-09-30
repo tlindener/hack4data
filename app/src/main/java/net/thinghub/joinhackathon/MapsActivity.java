@@ -17,10 +17,15 @@ import com.google.android.gms.maps.model.LatLng;
 
 import android.Manifest;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -33,6 +38,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +46,8 @@ import android.view.WindowManager;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.net.URLEncoder;
 
 import ai.kitt.snowboy.SnowboyDetect;
 
@@ -108,6 +116,7 @@ public class MapsActivity extends AppCompatActivity implements
         @Override
         public boolean handleMessage(Message msg) {
             toastMessage("Help! Ayuda!");
+
             return false;
         }
     });
@@ -231,13 +240,36 @@ public class MapsActivity extends AppCompatActivity implements
     }
 
     public void toastMessage(String message) {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        // Define the criteria how to select the locatioin provider -> use
+        // default
+        String url ="";
+        Criteria criteria = new Criteria();
+        String provider = locationManager.getBestProvider(criteria, false);
+        try {
+            Location location = locationManager.getLastKnownLocation(provider);
+            if  (location != null)
+                url = "http://maps.google.com/?q="+ location.getLatitude()+ URLEncoder.encode(",")+location.getLongitude();
+        }catch (SecurityException ex)
+        {        }
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            String[] clientData = loadData();
+
+            smsManager.sendTextMessage(clientData[1], null, clientData[0] + " just called for help! "+ url , null, null);
+        } catch (Exception e) {
+            Toast.makeText(this, "It crashed " + e, Toast.LENGTH_LONG).show();
+        }
         Toast toast = Toast.makeText(MapsActivity.this, message, Toast.LENGTH_SHORT);
         ViewGroup group = (ViewGroup) toast.getView();
         TextView messageTextView = (TextView) group.getChildAt(0);
         messageTextView.setTextSize(30);
         toast.show();
     }
-
+    private String[] loadData() {
+        SharedPreferences prefs = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE);
+        return new String[]{prefs.getString("name", null), prefs.getString("phone", null), prefs.getString("pin", null)};
+    }
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         // If the error has a resolution, start a Google Play services activity to resolve it.
@@ -309,8 +341,10 @@ public class MapsActivity extends AppCompatActivity implements
             ).setResultCallback(new ResultCallback<Status>() {
                 @Override
                 public void onResult(@NonNull Status status) {
-                    //Toast.makeText(MapsActivity.this, "Result of addGeofence: "+status.getStatus().toString(), Toast.LENGTH_SHORT).show();
-                    Log.d(TAG,status.getStatus().toString());
+                    if(status.getStatus().isSuccess()) {
+                        Toast.makeText(MapsActivity.this, "Geofence created successfully", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, status.getStatus().toString());
+                    }
                 }
             });
     }
